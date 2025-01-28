@@ -65,38 +65,15 @@ The skincare recommendation system is designed to provide users with tailored sk
 
 ### Component Diagram
 
-```text
-+-----------------+          +--------------------+          +---------------------+
-|   Frontend      |          |     Backend        |          |     ML Model        |
-| (Streamlit)     |  HTTP    | (Flask/FastAPI)    |  Query   | (Recommendation     |
-|-----------------|--------->|--------------------|--------->|  Engine - Python    |
-| User Input      |          | API Endpoint       |          | Pre-trained Model   |
-| Display Output  |<---------| Process Request    |<---------| Prediction          |
-+-----------------+          +--------------------+          +---------------------+
-```
+- **Frontend (Streamlit)** interacts with **Backend (Flask/FastAPI)** through HTTP requests.
+- **Backend** interacts with the **ML Model** for generating recommendations.
 
 ### Sequence Diagram
 
-```text
-User -> Frontend: Provide skincare preferences
-Frontend -> Backend: Submit user input (POST /api/recommend)
-Backend -> ML Model: Preprocess and query model
-ML Model -> Backend: Return recommended products
-Backend -> Frontend: Send recommendations (JSON response)
-Frontend -> User: Display recommendations
-```
-
-### Class Diagram
-
-```text
-+----------------+       +------------------+       +------------------+
-| UserInput      |       | Recommendation  |       | Product          |
-|----------------|       |------------------|       |------------------|
-| skin_type      |       | model: MLModel  |       | name: string     |
-| concerns       |       | preprocess()    |       | brand: string    |
-| age            |       | predict()       |       | price: float     |
-| budget         |       | format_results()|       | rating: float    |
-+----------------+       +------------------+       +------------------+
-```
-
-The component diagram shows the interaction between the frontend, backend, and ML model. The sequence diagram illustrates the flow of user interactions, and the class diagram outlines the relationships between key system classes.
+1. **User** opens the Streamlit app and inputs preferences.
+2. **Streamlit** sends a POST request to **Flask/FastAPI** backend.
+3. **Backend** validates input and preprocesses it.
+4. **Backend** queries the **ML Model**.
+5. **ML Model** returns recommended products.
+6. **Backend** formats the response and sends it back to **Streamlit**.
+7. **Streamlit** displays the recommendations to the **User**.
