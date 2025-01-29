@@ -1,2 +1,7 @@
 .MLOPS/
 sephora-products-and-skincare-reviews/
+myvenv/
+__pycache__/
+
+*.csv
+*.ipynb_checkpoints
