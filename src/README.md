@@ -1,5 +1,6 @@
 Here we keep all development scripts: 
 
+```
 src/
 │
 ├──app/ (web app folder)
@@ -9,5 +10,4 @@ src/
 |──tests/ (test scripts)
 |
 |──utils/ (helper functions)
-|
-├── README.md
+```
