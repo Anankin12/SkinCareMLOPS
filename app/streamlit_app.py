@@ -3,7 +3,8 @@ import requests
 import os
 
 # API URL
-api_url = "http://localhost:8000/recommend"
+RECOMMEND_API = "http://localhost:8000/recommend"
+IMAGE_API = "http://localhost:8001/get_image"
 
 # Placeholder image path
 PLACEHOLDER_IMAGE = os.path.join("src", "Placeholder_Image.jpg")
@@ -32,7 +33,7 @@ if st.sidebar.button("Get Recommendation"):
         "num_recommendations": 5
     }
 
-    response = requests.post(api_url, json=payload)
+    response = requests.post(RECOMMEND_API, json=payload)
     
     if response.status_code == 200:
         results = response.json()["recommendations"]
@@ -45,6 +46,13 @@ if st.sidebar.button("Get Recommendation"):
             brand = product["Brand"]
             price = product["Price"]
             rank = product["Rank"]
+
+            # Fetch image separately
+            image_response = requests.get(IMAGE_API, params={"brand": brand, "name": name})
+            if image_response.status_code == 200:
+                image_url = image_response.json()["image_url"]
+            else:
+                image_url = PLACEHOLDER_IMAGE
 
             # Display as a card-like format
             col1, col2 = st.columns([1, 3])
