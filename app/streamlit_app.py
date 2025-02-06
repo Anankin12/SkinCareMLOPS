@@ -1,13 +1,22 @@
+# Library needed for the actual site
 import streamlit as st
+
+# Library needed for loading the model and data handling 
 import joblib
 import os
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+# Library needed fot the API calls
+import requests
+
 # Paths
 MODEL_PATH = os.path.join("notebooks", "kmeans_model.pkl")
 DATA_PATH = os.path.join("notebooks", "clean_cosmetics_data.csv")
+
+# API URL
+api_url = "http://localhost:8000/recommend"
 
 # Load the data
 @st.cache_data
@@ -82,6 +91,18 @@ rank_filter = st.sidebar.slider("Select Rank Range", min_value=float(df["Rank"].
 ingredient_input = st.sidebar.text_input("Enter a Key Ingredient (Optional)")
 
 if st.sidebar.button("Get Recommendation"):
-    results = recommend_cosmetics(skin_type, label_filter, rank_filter, brand_filter, price_range, ingredient_input)
+    payload = {
+        "skin_type": skin_type,
+        "label_filter": label_filter,
+        "rank_filter": rank_filter,
+        "brand_filter": brand_filter,
+        "price_range": price_range,
+        "ingredient_input": ingredient_input,
+        "num_recommendations": 5
+    }
+
+    response = requests.post(api_url, json=payload)
+    results = response.json()["recommendations"]
+    
     st.write("### Recommended Products")
     st.dataframe(results)
