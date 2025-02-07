@@ -7,3 +7,5 @@ __pycache__/
 notebooks/*.csv
 *.ipynb_checkpoints
 *.pkl
+
+.pytest_cache/
