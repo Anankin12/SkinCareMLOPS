@@ -4,7 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd 
 import joblib
 
-def cluster_products(df: pd.Dataframe, n_clusters: int) -> pd.Dataframe: 
+def cluster_products(df: pd.DataFrame, n_clusters: int) -> pd.DataFrame: 
 
     # converting text data to numerical data
     vectorizer = TfidfVectorizer(stop_words='english')
@@ -15,9 +15,6 @@ def cluster_products(df: pd.Dataframe, n_clusters: int) -> pd.Dataframe:
     cluster_labels = kmeans.fit_predict(tfidf_matrix)
     df['ingredient_cluster'] = cluster_labels
 
-    # Save the trained K-Means model
-    joblib.dump(kmeans, "../models/kmeans_model.pkl")
-
-    return df
+    return df, tfidf_matrix
 
 
