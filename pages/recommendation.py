@@ -46,10 +46,16 @@ def recommendation_page():
 
     row = filtered_df.iloc[index]
     product_name = row["Name"]
+    image = get_product_image(product_name)
 
     st.subheader(product_name)
     st.write(f"**Brand:** {row['Brand']}")
     st.write(f"💰 **Price:** {row['Price']}")
+
+    if image:
+        st.image(image, caption=product_name, use_column_width=True)
+    else:
+        st.warning("No image available.")
 
     # ✅ "Like" and "Dislike" Buttons
     col1, col2 = st.columns(2)
