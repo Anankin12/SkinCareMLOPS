@@ -53,20 +53,22 @@ def recommendation_page():
     st.write(f"💰 **Price:** {row['Price']}")
 
     if image:
-        st.image(image, caption=product_name, use_column_width=True)
+        st.image(image, caption=product_name, use_container_width=True)
     else:
         st.warning("No image available.")
 
-    # ✅ "Like" and "Dislike" Buttons
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("👍 Like", key="like"):
-            st.session_state.current_index += 1
-            st.rerun()
-    with col2:
-        if st.button("👎 Dislike", key="dislike"):
-            st.session_state.current_index += 1
-            st.rerun()
+    # ✅ Centered "Like" and "Dislike" Buttons
+    col1, col2, col3 = st.columns([1, 2, 1])  # Add spacing columns
+    with col2:  # Center the buttons
+        colA, colB = st.columns(2)  # Create two equal columns inside the center column
+        with colA:
+            if st.button("👍 Like", key="like"):
+                st.session_state.current_index += 1
+                st.rerun()
+        with colB:
+            if st.button("👎 Dislike", key="dislike"):
+                st.session_state.current_index += 1
+                st.rerun()
 
     # ✅ Add a "Back to Home" Button
     if st.button("🔙 Back to Home"):
