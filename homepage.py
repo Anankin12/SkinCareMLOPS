@@ -2,6 +2,11 @@ import streamlit as st
 
 
 def homepage():
+    """
+    homepage for the web app: it takes in user input for skin type, 
+    the desired principal component and the number of recommendations 
+    It then switches to the recommendation page
+    """
     st.set_page_config(page_title="Find Your Skincare Product", layout="wide")
 
     st.markdown(

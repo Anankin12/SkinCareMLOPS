@@ -36,6 +36,9 @@ init:
 train:
 	$(PYTHON) pipelines/training_pipeline.py
 
+webapp:
+	streamlit run homepage.py
+
 # # Build the web app container
 # build:
 # 	docker build -t $(IMAGE_NAME) .
@@ -46,4 +49,4 @@ train:
 
 
 # Full pipeline
-all: venv install lint init train
+containerpipeline: train webapp

@@ -15,7 +15,7 @@ def load_data():
         / "processed"
         / "clean_cosmetics_data.csv"
     )
-    return pd.read_csv(csv_path)
+    return pd.read_csv(csv_path, sep=";")
 
 
 def recommendation_page():
