@@ -2,9 +2,10 @@
 INPUT_DATA_PATH=data/raw
 OUTPUT_DATA_PATH=data/processed
 MODEL_PATH=models
-IMAGE_NAME=mlops_webapp
-CONTAINER_NAME=mlops_container
+IMAGE_NAME=skincare_app
+CONTAINER_NAME=mlops_project
 PYTHON=python3
+VERSION=version1
 
 
 # Create virtual environment
@@ -39,13 +40,16 @@ train:
 webapp:
 	streamlit run homepage.py
 
-# # Build the web app container
-# build:
-# 	docker build -t $(IMAGE_NAME) .
+# Build the web app container
+build:
+	docker build -t $(IMAGE_NAME):$(VERSION) .
 
-# # Run the web app
-# run:
-# 	docker run --rm -p 8501:8501 -v $(PWD)/$(DATA_PATH):/app/data -v $(PWD)/$(MODEL_PATH):/app/models $(IMAGE_NAME)
+# Run the web app
+run:
+	docker run --rm -p 8501:8501 --name $(CONTAINER_NAME) $(IMAGE_NAME):$(VERSION)
+
+stop:
+	docker stop $(CONTAINER_NAME)
 
 
 # Full pipeline

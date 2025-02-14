@@ -4,6 +4,8 @@ RUN apt-get update && apt-get install -y make
 
 WORKDIR /app
 
+COPY requirements.txt .
+
 # create data directories
 RUN mkdir -p data/raw data/processed models/
 RUN pip install --no-cache-dir -r requirements.txt
