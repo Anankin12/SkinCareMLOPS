@@ -1,19 +1,30 @@
-import streamlit as st 
-import pandas as pd
-from src.inference import recommendation
-from src.images_fetcher import get_product_image
 from pathlib import Path
+
+import pandas as pd
+import streamlit as st
+
+from src.images_fetcher import get_product_image
+from src.inference import recommendation
+
 
 @st.cache_data
 def load_data():
-    csv_path = Path(__file__).resolve().parent.parent / "data" / "processed" / "clean_cosmetics_data.csv"
+    csv_path = (
+        Path(__file__).resolve().parent.parent
+        / "data"
+        / "processed"
+        / "clean_cosmetics_data.csv"
+    )
     return pd.read_csv(csv_path)
 
 
 def recommendation_page():
     st.set_page_config(page_title="Recommendations")
 
-    st.markdown("<h2 style='text-align: center;'>Your Skincare Recommendations</h2>", unsafe_allow_html=True)
+    st.markdown(
+        "<h2 style='text-align: center;'>Your Skincare Recommendations</h2>",
+        unsafe_allow_html=True,
+    )
 
     skin_type = st.session_state.get("selected_skin_type", None)
     component = st.session_state.get("selected_component", None)
@@ -74,7 +85,6 @@ def recommendation_page():
     if st.button("🔙 Back to Home"):
         st.session_state.page = "home"
         st.rerun()
-
 
 
 if __name__ == "__main__":

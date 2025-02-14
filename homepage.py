@@ -4,7 +4,8 @@ import streamlit as st
 def homepage():
     st.set_page_config(page_title="Find Your Skincare Product", layout="wide")
 
-    st.markdown("""
+    st.markdown(
+        """
         <style>
         div.stButton > button {
             width: 100%;
@@ -18,10 +19,15 @@ def homepage():
             color: white !important;
         }
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     # Title
-    st.markdown("<h2 style='text-align: center;'>Find a skincare product for...</h2>", unsafe_allow_html=True)
+    st.markdown(
+        "<h2 style='text-align: center;'>Find a skincare product for...</h2>",
+        unsafe_allow_html=True,
+    )
 
     # Skin Type Selection (2x2 Grid)
     st.markdown("### Skin Type")
@@ -29,7 +35,7 @@ def homepage():
         "Dry": "🧴 Dry",
         "Normal": "💧 Normal",
         "Oily": "🌿 Oily",
-        "Sensitive": "🌸 Sensitive"
+        "Sensitive": "🌸 Sensitive",
     }
 
     # Store selection state
@@ -56,10 +62,11 @@ def homepage():
         if st.button(skin_types["Oily"], key="oily", use_container_width=True):
             select_skin_type("Oily")
     with col4:
-        if st.button(skin_types["Sensitive"], key="sensitive", use_container_width=True):
+        if st.button(
+            skin_types["Sensitive"], key="sensitive", use_container_width=True
+        ):
             select_skin_type("Sensitive")
 
-    
     st.markdown("### Principal Component")
     col1, col2 = st.columns(2)
 
@@ -78,13 +85,17 @@ def homepage():
             select_component("silicone_based")
 
     st.markdown("### Number of Recommendations")
-    st.session_state.num_recommendations = st.slider("Select how many recommendations you want:", 1, 10, 5)
-
+    st.session_state.num_recommendations = st.slider(
+        "Select how many recommendations you want:", 1, 10, 5
+    )
 
     # Show final selection
     if st.session_state.selected_skin_type and st.session_state.selected_component:
         if st.button("Get Recommendations", key="recommend", use_container_width=True):
-            st.switch_page("pages/recommendation.py")  # Switch to the recommendation page
+            st.switch_page(
+                "pages/recommendation.py"
+            )  # Switch to the recommendation page
+
 
 # Main execution
 if __name__ == "__main__":

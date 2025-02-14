@@ -9,3 +9,6 @@ notebooks/*.csv
 *.pkl
 
 .pytest_cache/
+*.log
+
+models/
