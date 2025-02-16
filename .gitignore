@@ -11,3 +11,5 @@ notebooks/*.csv
 .pytest_cache/
 
 .env
+
+cached_images/
