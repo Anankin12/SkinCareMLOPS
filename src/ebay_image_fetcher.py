@@ -8,7 +8,7 @@ load_dotenv()
 
 # === CONFIGURATION ===
 USE_PRODUCTION = True  # Set to True for Production API, False for Sandbox API
-VERBOSE = True  # Set to True to enable verbose output
+VERBOSE = False  # Set to True to enable verbose output
 
 # Select API environment based on USE_PRODUCTION
 if USE_PRODUCTION:
