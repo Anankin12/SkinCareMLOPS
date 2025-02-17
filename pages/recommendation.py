@@ -1,8 +1,11 @@
 import streamlit as st 
 import pandas as pd
 from src.inference import recommendation
+from src.ebay_image_fetcher import log, get_cached_image, get_ebay_product_image
 from src.images_fetcher import get_product_image
 from pathlib import Path
+
+VERBOSE = False
 
 @st.cache_data
 def load_data():
