@@ -37,6 +37,7 @@ fonttools==4.55.8
 fqdn==1.5.1
 gitdb==4.0.12
 GitPython==3.1.44
+google_search_results==2.4.2
 grpclib==0.4.7
 h11==0.14.0
 h2==4.2.0
