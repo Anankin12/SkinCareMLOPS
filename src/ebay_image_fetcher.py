@@ -108,8 +108,18 @@ def get_ebay_product_image(product_name):
                 image_url = image_url[0]  # Take first image if multiple are returned
 
             if image_url and isinstance(image_url, str):
+                # ✅ Modify the URL to request a higher resolution image
+                if "s-l140" in image_url:  # If it's a small thumbnail
+                    high_res_url = image_url.replace("s-l140", "s-l1200")  # Increase size to 500px
+                elif "s-l225" in image_url:
+                    high_res_url = image_url.replace("s-l225", "s-l1200")
+                elif "s-l400" in image_url:
+                    high_res_url = image_url.replace("s-l400", "s-l1200")
+                else:
+                    high_res_url = image_url  # Fallback to the original URL
+
                 # ✅ Store both eBay URL and downloaded image
-                ext = image_url.split(".")[-1].lower()
+                ext = high_res_url.split(".")[-1].lower()
                 if ext not in ["jpg", "jpeg", "png", "gif", "webp"]:
                     ext = "jpg"  # Default to jpg if unknown
                 
@@ -117,7 +127,7 @@ def get_ebay_product_image(product_name):
                 save_path = os.path.join(CACHE_DIR, f"{safe_filename}.{ext}")
 
                 # Download and save image
-                img_response = requests.get(image_url, stream=True)
+                img_response = requests.get(high_res_url, stream=True)
                 if img_response.status_code == 200:
                     with open(save_path, "wb") as img_file:
                         for chunk in img_response.iter_content(1024):
@@ -125,13 +135,13 @@ def get_ebay_product_image(product_name):
 
                     # ✅ Update cache
                     image_cache[product_name] = {
-                        "ebay_url": image_url,
+                        "ebay_url": high_res_url,
                         "local_path": save_path
                     }
                     save_cache()
 
-                    log(f"✅ Cached new image for '{product_name}' -> eBay URL: {image_url}")
-                    return image_url  # ✅ Always return the eBay URL
+                    log(f"✅ Cached new image for '{product_name}' -> eBay URL: {high_res_url}")
+                    return high_res_url  # ✅ Always return the modified eBay URL
 
         log(f"❌ No valid images found for '{product_name}'.")
         return None
