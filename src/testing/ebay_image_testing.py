@@ -34,7 +34,7 @@ try:
     log(f"✅ Found product name column: {correct_col_name}")
 
     # Test the first 5 products
-    for idx in range(min(5, len(product_df))):
+    for idx in range(min(50, len(product_df))):
         product_name = product_df.iloc[idx][correct_col_name]
         log(f"\n🔍 Testing with product: {product_name}")
 

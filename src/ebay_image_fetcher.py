@@ -1,4 +1,3 @@
-# ebay_image_fetcher.py
 import os
 import requests
 from dotenv import load_dotenv
@@ -23,8 +22,8 @@ else:
     EBAY_AUTH_URL = os.getenv("EBAY_SANDBOX_AUTH_URL")
     EBAY_ACCESS_TOKEN = os.getenv("EBAY_SANDBOX_ACCESS_TOKEN")
 
-CACHE_DIR = CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "cached_images"))
-  # Directory for cached images
+# ✅ Use a consistent absolute path for cached images
+CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "cached_images"))
 
 # Ensure cache directory exists
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -37,15 +36,17 @@ def log(message):
 def get_cached_image(product_name):
     """
     Check if an image exists in cache for a given product.
-    Returns the file path if found, otherwise None.
+    Returns the public URL if found, otherwise None.
     """
     safe_filename = product_name.replace(" ", "_").lower()
     matching_files = glob(os.path.join(CACHE_DIR, f"{safe_filename}.*"))  # Match any extension
 
     if matching_files:
-        log(f"🖼️ Using cached image for '{product_name}': {matching_files[0]}")
-        return matching_files[0]
-    
+        # ✅ Return the URL instead of the local path
+        external_url = f"http://albtrieste.ddns.net:8000/images/{os.path.basename(matching_files[0])}"
+        log(f"🖼️ Using cached image for '{product_name}': {external_url}")
+        return external_url
+
     return None
 
 def get_ebay_product_image(product_name):
@@ -55,9 +56,9 @@ def get_ebay_product_image(product_name):
     """
 
     # Check if image is cached
-    cached_image_path = get_cached_image(product_name)
-    if cached_image_path:
-        return cached_image_path
+    cached_image_url = get_cached_image(product_name)
+    if cached_image_url:
+        return cached_image_url
 
     log(f"🔍 Searching eBay for images of: {product_name}")
 
@@ -113,7 +114,7 @@ def get_ebay_product_image(product_name):
                         for chunk in img_response.iter_content(1024):
                             img_file.write(chunk)
                     log(f"✅ Found NEW image for '{product_name}', saved to: {save_path}")
-                    return save_path
+                    return f"http://albtrieste.ddns.net:8000/images/{os.path.basename(save_path)}"
 
         log(f"❌ No valid images found for '{product_name}'.")
         return None
