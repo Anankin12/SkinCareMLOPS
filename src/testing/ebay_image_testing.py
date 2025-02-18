@@ -1,3 +1,4 @@
+# ebay_image_testing.py
 import sys
 import os
 import pandas as pd
@@ -8,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from ebay_image_fetcher import get_ebay_product_image
 
 # === CONFIGURATION ===
-PRODUCT_CSV_PATH = os.path.join("..", "data", "raw", "product_info.csv")
+PRODUCT_CSV_PATH = os.path.join("..", "..", "data", "raw", "product_info.csv")
 VERBOSE = True  # Set to True for detailed output
 
 def log(message):

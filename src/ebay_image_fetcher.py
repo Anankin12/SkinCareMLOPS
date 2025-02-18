@@ -1,3 +1,4 @@
+# ebay_image_fetcher.py
 import os
 import requests
 from dotenv import load_dotenv
@@ -22,7 +23,8 @@ else:
     EBAY_AUTH_URL = os.getenv("EBAY_SANDBOX_AUTH_URL")
     EBAY_ACCESS_TOKEN = os.getenv("EBAY_SANDBOX_ACCESS_TOKEN")
 
-CACHE_DIR = os.path.join("cached_images")  # Directory for cached images
+CACHE_DIR = CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "cached_images"))
+  # Directory for cached images
 
 # Ensure cache directory exists
 os.makedirs(CACHE_DIR, exist_ok=True)
