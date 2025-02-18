@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from dotenv import load_dotenv
 from glob import glob  # Used to match cached images with any format
@@ -10,7 +11,6 @@ load_dotenv()
 USE_PRODUCTION = True  # Set to True for Production API, False for Sandbox API
 VERBOSE = True  # Set to True to enable verbose output
 
-# Select API environment based on USE_PRODUCTION
 if USE_PRODUCTION:
     EBAY_APP_ID = os.getenv("EBAY_PROD_APP_ID")
     EBAY_API_URL = os.getenv("EBAY_PROD_API_URL")
@@ -22,40 +22,48 @@ else:
     EBAY_AUTH_URL = os.getenv("EBAY_SANDBOX_AUTH_URL")
     EBAY_ACCESS_TOKEN = os.getenv("EBAY_SANDBOX_ACCESS_TOKEN")
 
-# ✅ Use a consistent absolute path for cached images
+# ✅ Use a consistent absolute path for cached images and JSON metadata
 CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "cached_images"))
+CACHE_JSON = os.path.join(CACHE_DIR, "image_cache.json")
 
 # Ensure cache directory exists
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+# ✅ Load existing cache or create a new one
+if os.path.exists(CACHE_JSON):
+    with open(CACHE_JSON, "r") as f:
+        image_cache = json.load(f)
+else:
+    image_cache = {}
 
 def log(message):
     """ Prints verbose messages only if VERBOSE is enabled. """
     if VERBOSE:
         print(message)
 
+def save_cache():
+    """ Saves the updated image cache to JSON. """
+    with open(CACHE_JSON, "w") as f:
+        json.dump(image_cache, f, indent=4)
+
 def get_cached_image(product_name):
     """
-    Check if an image exists in cache for a given product.
-    Returns the public URL if found, otherwise None.
+    Check if an image exists in cache.
+    Returns the eBay image URL if found, otherwise None.
     """
-    safe_filename = product_name.replace(" ", "_").lower()
-    matching_files = glob(os.path.join(CACHE_DIR, f"{safe_filename}.*"))  # Match any extension
+    if product_name in image_cache:
+        log(f"🖼️ Using cached image for '{product_name}': {image_cache[product_name]['ebay_url']}")
+        return image_cache[product_name]["ebay_url"]
 
-    if matching_files:
-        # ✅ Return the URL instead of the local path
-        external_url = f"http://albtrieste.ddns.net:8000/images/{os.path.basename(matching_files[0])}"
-        log(f"🖼️ Using cached image for '{product_name}': {external_url}")
-        return external_url
-
+    log(f"❌ No cached image found for '{product_name}'")
     return None
 
 def get_ebay_product_image(product_name):
     """
     Fetch product image from eBay API and cache it if found.
-    Returns the image path if successful, otherwise None.
+    Returns the eBay image URL if successful, otherwise None.
     """
-
-    # Check if image is cached
+    # ✅ Check if image is cached
     cached_image_url = get_cached_image(product_name)
     if cached_image_url:
         return cached_image_url
@@ -70,7 +78,7 @@ def get_ebay_product_image(product_name):
         "RESPONSE-DATA-FORMAT": "JSON",
         "REST-PAYLOAD": "",
         "keywords": product_name,
-        "paginationInput.entriesPerPage": 5,  # Get up to 5 results to find an image
+        "paginationInput.entriesPerPage": 5,  # Get up to 5 results
         "outputSelector": "PictureURLLarge"
     }
 
@@ -93,19 +101,20 @@ def get_ebay_product_image(product_name):
             log(f"❌ No items found for '{product_name}'.")
             return None
 
-        # Find the first valid image within the first 5 results
+        # Find the first valid image
         for item in items[:5]:  # Only check first 5 results
             image_url = item.get("galleryURL")
             if isinstance(image_url, list):
                 image_url = image_url[0]  # Take first image if multiple are returned
-            
+
             if image_url and isinstance(image_url, str):
-                # Determine file extension
+                # ✅ Store both eBay URL and downloaded image
                 ext = image_url.split(".")[-1].lower()
                 if ext not in ["jpg", "jpeg", "png", "gif", "webp"]:
                     ext = "jpg"  # Default to jpg if unknown
                 
-                save_path = os.path.join(CACHE_DIR, f"{product_name.replace(' ', '_').lower()}.{ext}")
+                safe_filename = product_name.replace(" ", "_").lower()
+                save_path = os.path.join(CACHE_DIR, f"{safe_filename}.{ext}")
 
                 # Download and save image
                 img_response = requests.get(image_url, stream=True)
@@ -113,8 +122,16 @@ def get_ebay_product_image(product_name):
                     with open(save_path, "wb") as img_file:
                         for chunk in img_response.iter_content(1024):
                             img_file.write(chunk)
-                    log(f"✅ Found NEW image for '{product_name}', saved to: {save_path}")
-                    return f"http://albtrieste.ddns.net:8000/images/{os.path.basename(save_path)}"
+
+                    # ✅ Update cache
+                    image_cache[product_name] = {
+                        "ebay_url": image_url,
+                        "local_path": save_path
+                    }
+                    save_cache()
+
+                    log(f"✅ Cached new image for '{product_name}' -> eBay URL: {image_url}")
+                    return image_url  # ✅ Always return the eBay URL
 
         log(f"❌ No valid images found for '{product_name}'.")
         return None

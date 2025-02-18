@@ -1,12 +1,10 @@
-# recommendation.py
 import streamlit as st 
 import pandas as pd
 from src.inference import recommendation
 from src.ebay_image_fetcher import log, get_cached_image, get_ebay_product_image
-from src.images_fetcher import get_product_image
 from pathlib import Path
 
-VERBOSE = False
+VERBOSE = True
 
 @st.cache_data
 def load_data():
@@ -55,14 +53,33 @@ def recommendation_page():
     st.write(f"**Brand:** {row['Brand']}")
     st.write(f"💰 **Price:** {row['Price']}")
 
+    # ✅ Debugging: Print product name
+    log(f"🔍 Looking for image: {product_name}")
+
+    # ✅ First, try fetching cached eBay image URL
+    image_url = get_cached_image(product_name)
+
+    # ✅ If not cached, query eBay and update the cache
+    if not image_url:
+        image_url = get_ebay_product_image(product_name)
+
+    # ✅ Debugging: Print image URL
+    log(f"📸 Image URL: {image_url}")
+
+    # ✅ Display the image if found
+    if image_url:
+        st.image(image_url, caption=product_name, use_container_width=False)
+    else:
+        st.warning(f"⚠️ No image found for this product: {product_name}")
+
     # ✅ "Like" and "Dislike" Buttons
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("👍 Like", key="like"):
+        if st.button("👍 Like", key=f"like_{index}"):
             st.session_state.current_index += 1
             st.rerun()
     with col2:
-        if st.button("👎 Dislike", key="dislike"):
+        if st.button("👎 Dislike", key=f"dislike_{index}"):
             st.session_state.current_index += 1
             st.rerun()
 
@@ -70,7 +87,6 @@ def recommendation_page():
     if st.button("🔙 Back to Home"):
         st.session_state.page = "home"
         st.rerun()
-
 
 
 if __name__ == "__main__":
