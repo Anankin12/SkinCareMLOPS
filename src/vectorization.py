@@ -29,15 +29,14 @@ class Vectorizer:
             return ingredients_list
     
 
-    def preprocessing(self): 
+    def preprocessing(self, columns_to_vectorize): 
         """
         Preprocesses the DataFrame by dropping duplicates and resetting the index
         """
         self.df.drop_duplicates(subset=['product_id'], inplace=True)
         self.df.reset_index(drop=True, inplace=True)
 
-        self.df['column_to_vectorize'] = self.df[['skin_tone', 'eye_color', 'skin_type', 'hair_color', 
-                                              'ingredients_cleaned', 'water_based', 'silicone_based']].values.tolist()
+        self.df['column_to_vectorize'] = self.df[columns_to_vectorize].values.tolist()
         
         self.df['attributes_cleaned'] = self.df['column_to_vectorize'].apply(self.ingredients_to_string)
         self.df.drop(columns=['column_to_vectorize'], axis=1, inplace=True)
