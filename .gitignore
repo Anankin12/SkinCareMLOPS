@@ -13,5 +13,6 @@ notebooks/*.csv
 testing/
 
 .env
+.png
 
 cached_images/
