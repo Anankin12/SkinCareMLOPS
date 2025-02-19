@@ -9,3 +9,7 @@ notebooks/*.csv
 *.pkl
 
 .pytest_cache/
+
+.env
+
+cached_images/
