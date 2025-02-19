@@ -10,6 +10,8 @@ notebooks/*.csv
 
 .pytest_cache/
 
+testing/
+
 .env
 
 cached_images/
