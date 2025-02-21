@@ -72,10 +72,10 @@ def homepage():
         st.session_state.selected_component = component
 
     with col1:
-        if st.button("💦 water_based", key="water", use_container_width=True):
+        if st.button("💦 Water Based", key="water", use_container_width=True):
             select_component("water_based")
     with col2:
-        if st.button("🧊 silicone_based", key="silicone", use_container_width=True):
+        if st.button("🧊 Silicone Based", key="silicone", use_container_width=True):
             select_component("silicone_based")
 
     st.markdown("### Number of Recommendations")
