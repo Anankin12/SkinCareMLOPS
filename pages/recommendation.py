@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from src.inference import recommendation
 from src.ebay_image_fetcher import log, get_cached_image, get_ebay_product_image
+from src.images_fetcher import get_product_image
 from pathlib import Path
 
 VERBOSE = True
@@ -62,6 +63,10 @@ def recommendation_page():
     # ✅ If not cached, query eBay and update the cache
     if not image_url:
         image_url = get_ebay_product_image(product_name)
+    
+    # ✅ If not found on eBay, use Google Images
+    if not image_url:
+        image_url = get_product_image(product_name)
 
     # ✅ Debugging: Print image URL
     log(f"📸 Image URL: {image_url}")
