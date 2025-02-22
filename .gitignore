@@ -12,3 +12,5 @@ notebooks/*.csv
 *.log
 
 models/
+
+.env

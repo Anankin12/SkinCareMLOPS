@@ -7,10 +7,10 @@ WORKDIR /app
 COPY requirements.txt .
 
 # create data directories
-RUN mkdir -p data/raw data/processed models/
+RUN mkdir -p data/raw data/processed 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY data/raw/cosmetics.csv data/raw/cosmetics.csv
+COPY data/raw/ data/raw/
 COPY requirements.txt .
 COPY makefile .
 

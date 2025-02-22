@@ -2,9 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-
-from src.images_fetcher import get_product_image
-from src.inference import recommendation
+from src.inference import recommendation_engine
+from src.images_fetcher import ImageFetcher
 
 
 @st.cache_data
@@ -13,7 +12,7 @@ def load_data():
         Path(__file__).resolve().parent.parent
         / "data"
         / "processed"
-        / "clean_cosmetics_data.csv"
+        / "cleaned_data.csv"
     )
     return pd.read_csv(csv_path, sep=";")
 
@@ -29,19 +28,26 @@ def recommendation_page():
     skin_type = st.session_state.get("selected_skin_type", None)
     component = st.session_state.get("selected_component", None)
     num_recommendations = st.session_state.get("num_recommendations", 5)
+    selected_category = st.session_state.get("selected_category", None)
+    skin_tone = st.session_state.get("selected_skin_tone", None)
 
-    if not skin_type or not component:
+    if not component or not selected_category:
         st.warning("Please go back and select your preferences.")
         return
 
-    df = load_data()
-    filtered_df = recommendation(df, skin_type, component, num_recommendations)
-
+    clean_df = load_data()
+    recommender = recommendation_engine(clean_df)
+    recommendations = recommender.recommendation_function(selected_category, 
+                                                         component,
+                                                         skin_tone,
+                                                         skin_type, 
+                                                         n_recommendations=num_recommendations)
+    
     st.info(f"**Your Skin Type:** {skin_type}")
     st.info(f"**Preferred Component:** {component}")
     st.info(f"🔢 **Displaying {num_recommendations} recommendations.**")
 
-    if filtered_df.empty:
+    if recommendations.empty:
         st.warning("No matching products found.")
         return
 
@@ -51,17 +57,18 @@ def recommendation_page():
 
     # ✅ Get current product
     index = st.session_state.current_index
-    if index >= len(filtered_df):
+    if index >= len(recommendations):
         st.success("🎉 You've seen all recommendations!")
         return
 
-    row = filtered_df.iloc[index]
-    product_name = row["Name"]
-    image = get_product_image(product_name)
+    row = recommendations.iloc[index]
+    product_name = row["product_name"]
+    image_fetcher = ImageFetcher(product_name)
+    image = image_fetcher.google_search()
 
     st.subheader(product_name)
-    st.write(f"**Brand:** {row['Brand']}")
-    st.write(f"💰 **Price:** {row['Price']}")
+    st.write(f"**Brand:** {row['brand_name']}")
+    st.write(f"💰 **Price:** {row['price_usd']}")
 
     if image:
         st.image(image, caption=product_name, use_container_width=True)

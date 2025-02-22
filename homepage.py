@@ -1,11 +1,10 @@
 import streamlit as st
 
-
 def homepage():
     """
-    homepage for the web app: it takes in user input for skin type, 
-    the desired principal component and the number of recommendations 
-    It then switches to the recommendation page
+    Homepage for the web app: it takes in user input for product category, 
+    principal component, skin type, and skin tone (saved in session state). 
+    Then, it asks for hair and eye color before switching to the recommendation page.
     """
     st.set_page_config(page_title="Find Your Skincare Product", layout="wide")
 
@@ -19,88 +18,112 @@ def homepage():
             border-radius: 10px;
             border: 2px solid #ddd;
         }
-        .selected {
-            background-color: #4CAF50 !important;
-            color: white !important;
-        }
         </style>
     """,
         unsafe_allow_html=True,
     )
 
-    # Title
-    st.markdown(
-        "<h2 style='text-align: center;'>Find a skincare product for...</h2>",
-        unsafe_allow_html=True,
-    )
+    # **Step 1: Select Product Category**
+    st.markdown("### Select Product Category")
+    categories = {"Cosmetics": "💄 Cosmetics", "Eye Care": "👁 Eye Care", "Random": "🎁 Random"}
 
-    # Skin Type Selection (2x2 Grid)
-    st.markdown("### Skin Type")
+    if "selected_category" not in st.session_state:
+        st.session_state.selected_category = None
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button(categories["Cosmetics"], key="cosmetics"):
+            st.session_state.selected_category = "Cosmetics"
+    with col2:
+        if st.button(categories["Eye Care"], key="eye_care"):
+            st.session_state.selected_category = "Eye Care"
+    with col3:
+        if st.button(categories["Random"], key="random"):
+            st.session_state.selected_category = "Random"
+
+    if not st.session_state.selected_category:
+        st.stop()  # Wait until category is selected
+
+    # **Step 2: Select Principal Component**
+    st.markdown("### Select Principal Component")
+
+    if "selected_component" not in st.session_state:
+        st.session_state.selected_component = None
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("💦 Water Based", key="water"):
+            st.session_state.selected_component = "Water"
+    with col2:
+        if st.button("🧊 Silicone Based", key="silicone"):
+            st.session_state.selected_component = "Silicone"
+
+    if not st.session_state.selected_component:
+        st.stop()  # Wait until component is selected
+
+    # **Step 3: Select Skin Type**
+    st.markdown("### Select Skin Type")
+
     skin_types = {
         "Dry": "🧴 Dry",
         "Normal": "💧 Normal",
         "Oily": "🌿 Oily",
-        "Sensitive": "🌸 Sensitive",
+        "Combination": "🌸 Combination",
     }
 
-    # Store selection state
     if "selected_skin_type" not in st.session_state:
         st.session_state.selected_skin_type = None
 
-    # Skin Type Selection Grid
     col1, col2 = st.columns(2)
     col3, col4 = st.columns(2)
 
-    def select_skin_type(skin_type):
-        st.session_state.selected_skin_type = skin_type
-
-    # Row 1
     with col1:
-        if st.button(skin_types["Dry"], key="dry", use_container_width=True):
-            select_skin_type("Dry")
+        if st.button(skin_types["Dry"], key="dry"):
+            st.session_state.selected_skin_type = "Dry"
     with col2:
-        if st.button(skin_types["Normal"], key="normal", use_container_width=True):
-            select_skin_type("Normal")
-
-    # Row 2
+        if st.button(skin_types["Normal"], key="normal"):
+            st.session_state.selected_skin_type = "Normal"
     with col3:
-        if st.button(skin_types["Oily"], key="oily", use_container_width=True):
-            select_skin_type("Oily")
+        if st.button(skin_types["Oily"], key="oily"):
+            st.session_state.selected_skin_type = "Oily"
     with col4:
-        if st.button(
-            skin_types["Sensitive"], key="sensitive", use_container_width=True
-        ):
-            select_skin_type("Sensitive")
+        if st.button(skin_types["Combination"], key="combination"):
+            st.session_state.selected_skin_type = "Combination"
 
-    st.markdown("### Principal Component")
-    col1, col2 = st.columns(2)
+    if not st.session_state.selected_skin_type:
+        st.stop()  # Wait until skin type is selected
 
-    # Store component selection state
-    if "selected_component" not in st.session_state:
-        st.session_state.selected_component = None
+    # **Step 4: Select Skin Tone**
+    st.markdown("### Select Skin Tone")
 
-    def select_component(component):
-        st.session_state.selected_component = component
+    skin_tones = ["Light", "Fair", "Unknown", "Tan", "Light Medium"]
 
-    with col1:
-        if st.button("💦 water_based", key="water", use_container_width=True):
-            select_component("water_based")
-    with col2:
-        if st.button("🧊 silicone_based", key="silicone", use_container_width=True):
-            select_component("silicone_based")
+    if "selected_skin_tone" not in st.session_state:
+        st.session_state.selected_skin_tone = None
 
+    selected_tone = st.radio("Choose your skin tone:", skin_tones, horizontal=True)
+    st.session_state.selected_skin_tone = selected_tone
+
+    # **Step 5: Select Hair Color**
+    st.markdown("### Select Hair Color")
+
+    hair_colors = ["Dark", "Light", "Red"]
+    selected_hair_color = st.radio("Choose your hair color:", hair_colors, horizontal=True)
+
+    # **Step 6: Select Eye Color**
+    st.markdown("### Select Eye Color")
+
+    eye_colors = ["Light", "Dark"]
+    selected_eye_color = st.radio("Choose your eye color:", eye_colors, horizontal=True)
+
+    # **Step 7: Number of Recommendations**
     st.markdown("### Number of Recommendations")
-    st.session_state.num_recommendations = st.slider(
-        "Select how many recommendations you want:", 1, 10, 5
-    )
+    st.session_state.num_recommendations = st.slider("Select how many recommendations you want:", 1, 10, 5)
 
-    # Show final selection
-    if st.session_state.selected_skin_type and st.session_state.selected_component:
-        if st.button("Get Recommendations", key="recommend", use_container_width=True):
-            st.switch_page(
-                "pages/recommendation.py"
-            )  # Switch to the recommendation page
-
+    # **Step 8: Show Final Selection & Proceed**
+    if st.button("Get Recommendations", key="recommend"):
+        st.switch_page("pages/recommendation.py")  # Switch to recommendation page
 
 # Main execution
 if __name__ == "__main__":
