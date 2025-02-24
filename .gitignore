@@ -11,6 +11,10 @@ notebooks/*.csv
 .pytest_cache/
 *.log
 
+*.jpeg
+*.jpg
+*.json
+
 models/
 
 .env
