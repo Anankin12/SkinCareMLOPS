@@ -1,3 +1,3 @@
-# SkinCareMLOPS
+# SkinDare
 
-Repo for the MLOPS project.
+Recommendation system leveraging machine learning and AI to select the best skincare product for your needs!
