@@ -1,39 +1,59 @@
-import streamlit as st 
-import pandas as pd
-from src.inference import recommendation
-from src.ebay_image_fetcher import log, get_cached_image, get_ebay_product_image
-from src.images_fetcher import get_product_image
 from pathlib import Path
 
-VERBOSE = True
+import os
+
+import pandas as pd
+import streamlit as st
+
+from src.inference import recommendation_engine
+from src.images_fetcher import ImageFetcher
+from src.ebay_image_fetcher import get_cached_image, get_ebay_product_image, image_cache, save_cache
+
+CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "cached_images"))
+
 
 @st.cache_data
 def load_data():
-    csv_path = Path(__file__).resolve().parent.parent / "data" / "processed" / "clean_cosmetics_data.csv"
-    return pd.read_csv(csv_path)
+    csv_path = (
+        Path(__file__).resolve().parent.parent
+        / "data"
+        / "processed"
+        / "cleaned_data.csv"
+    )
+    return pd.read_csv(csv_path, sep=";")
 
 
 def recommendation_page():
     st.set_page_config(page_title="Recommendations")
 
-    st.markdown("<h2 style='text-align: center;'>Your Skincare Recommendations</h2>", unsafe_allow_html=True)
+    st.markdown(
+        "<h2 style='text-align: center;'>Your Skincare Recommendations</h2>",
+        unsafe_allow_html=True,
+    )
 
     skin_type = st.session_state.get("selected_skin_type", None)
     component = st.session_state.get("selected_component", None)
     num_recommendations = st.session_state.get("num_recommendations", 5)
+    selected_category = st.session_state.get("selected_category", None)
+    skin_tone = st.session_state.get("selected_skin_tone", None)
 
-    if not skin_type or not component:
+    if not component or not selected_category:
         st.warning("Please go back and select your preferences.")
         return
 
-    df = load_data()
-    filtered_df = recommendation(df, skin_type, component, num_recommendations)
-
+    clean_df = load_data()
+    recommender = recommendation_engine(clean_df)
+    recommendations = recommender.recommendation_function(selected_category, 
+                                                         component,
+                                                         skin_tone,
+                                                         skin_type, 
+                                                         n_recommendations=num_recommendations)
+    
     st.info(f"**Your Skin Type:** {skin_type}")
     st.info(f"**Preferred Component:** {component}")
     st.info(f"🔢 **Displaying {num_recommendations} recommendations.**")
 
-    if filtered_df.empty:
+    if recommendations.empty:
         st.warning("No matching products found.")
         return
 
@@ -43,50 +63,55 @@ def recommendation_page():
 
     # ✅ Get current product
     index = st.session_state.current_index
-    if index >= len(filtered_df):
+    if index >= len(recommendations):
         st.success("🎉 You've seen all recommendations!")
         return
 
-    row = filtered_df.iloc[index]
-    product_name = row["Name"]
-
-    st.subheader(product_name)
-    st.write(f"**Brand:** {row['Brand']}")
-    st.write(f"💰 **Price:** {row['Price']}")
-
-    # ✅ Debugging: Print product name
-    log(f"🔍 Looking for image: {product_name}")
-
-    # ✅ First, try fetching cached eBay image URL
+    row = recommendations.iloc[index]
+    product_name = row["product_name"]
+    
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    
+    # --- Image fetching logic ---
+    # 1. Try fetching from cache
     image_url = get_cached_image(product_name)
-
-    # ✅ If not cached, query eBay and update the cache
+    # 2. If not cached, try fetching from eBay (which also caches if found)
     if not image_url:
         image_url = get_ebay_product_image(product_name)
-    
-    # ✅ If not found on eBay, use Google Images
+    # 3. If still not found, fall back to Google Images and then cache that result
     if not image_url:
-        image_url = get_product_image(product_name)
+        image_fetcher = ImageFetcher(product_name)
+        image_url = image_fetcher.google_search()
+        if image_url:
+            image_cache[product_name] = {"ebay_url": image_url, "local_path": None}
+            save_cache()
+    
+    
+    
+    # image_fetcher = ImageFetcher(product_name)
+    # image = image_fetcher.google_search()
 
-    # ✅ Debugging: Print image URL
-    log(f"📸 Image URL: {image_url}")
+    st.subheader(product_name)
+    st.write(f"**Brand:** {row['brand_name']}")
+    st.write(f"💰 **Price:** {row['price_usd']}")
 
-    # ✅ Display the image if found
     if image_url:
-        st.image(image_url, caption=product_name, use_container_width=False)
+        st.image(image_url, caption=product_name, use_container_width=True)
     else:
-        st.warning(f"⚠️ No image found for this product: {product_name}")
+        st.warning("No image available.")
 
-    # ✅ "Like" and "Dislike" Buttons
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("👍 Like", key=f"like_{index}"):
-            st.session_state.current_index += 1
-            st.rerun()
-    with col2:
-        if st.button("👎 Dislike", key=f"dislike_{index}"):
-            st.session_state.current_index += 1
-            st.rerun()
+    # ✅ Centered "Like" and "Dislike" Buttons
+    col1, col2, col3 = st.columns([1, 2, 1])  # Add spacing columns
+    with col2:  # Center the buttons
+        colA, colB = st.columns(2)  # Create two equal columns inside the center column
+        with colA:
+            if st.button("👍 Like", key="like"):
+                st.session_state.current_index += 1
+                st.rerun()
+        with colB:
+            if st.button("👎 Dislike", key="dislike"):
+                st.session_state.current_index += 1
+                st.rerun()
 
     # ✅ Add a "Back to Home" Button
     if st.button("🔙 Back to Home"):

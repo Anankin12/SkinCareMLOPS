@@ -19,5 +19,5 @@ COPY . .
 # Expose the port on which your app will run
 EXPOSE 8501
 
-# Run the Streamlit app in headless mode (which prevents the email prompt)
+# Run the Streamlit app in headless mode (prevents email prompt)
 CMD ["streamlit", "run", "--server.headless", "true", "homepage.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false"]
