@@ -27,7 +27,7 @@ class recommendation_engine:
         
 
         if filtered_df.empty:
-            return "No products found with the specified preferences."
+            return filtered_df
 
         # Reset index to ensure alignment with tfidf_matrix
         filtered_df = filtered_df.reset_index(drop=True)

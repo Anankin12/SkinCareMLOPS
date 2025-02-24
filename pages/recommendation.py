@@ -1,9 +1,15 @@
 from pathlib import Path
 
+import os
+
 import pandas as pd
 import streamlit as st
+
 from src.inference import recommendation_engine
 from src.images_fetcher import ImageFetcher
+from src.ebay_image_fetcher import get_cached_image, get_ebay_product_image, image_cache, save_cache
+
+CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "cached_images"))
 
 
 @st.cache_data
@@ -63,15 +69,34 @@ def recommendation_page():
 
     row = recommendations.iloc[index]
     product_name = row["product_name"]
-    image_fetcher = ImageFetcher(product_name)
-    image = image_fetcher.google_search()
+    
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    
+    # --- Image fetching logic ---
+    # 1. Try fetching from cache
+    image_url = get_cached_image(product_name)
+    # 2. If not cached, try fetching from eBay (which also caches if found)
+    if not image_url:
+        image_url = get_ebay_product_image(product_name)
+    # 3. If still not found, fall back to Google Images and then cache that result
+    if not image_url:
+        image_fetcher = ImageFetcher(product_name)
+        image_url = image_fetcher.google_search()
+        if image_url:
+            image_cache[product_name] = {"ebay_url": image_url, "local_path": None}
+            save_cache()
+    
+    
+    
+    # image_fetcher = ImageFetcher(product_name)
+    # image = image_fetcher.google_search()
 
     st.subheader(product_name)
     st.write(f"**Brand:** {row['brand_name']}")
     st.write(f"💰 **Price:** {row['price_usd']}")
 
-    if image:
-        st.image(image, caption=product_name, use_container_width=True)
+    if image_url:
+        st.image(image_url, caption=product_name, use_container_width=True)
     else:
         st.warning("No image available.")
 

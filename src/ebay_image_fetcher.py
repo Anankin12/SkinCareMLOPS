@@ -2,14 +2,11 @@ import os
 import json
 import requests
 from dotenv import load_dotenv
-from glob import glob  # Used to match cached images with any format
 
-# Load API credentials from .env file
 load_dotenv()
 
 # === CONFIGURATION ===
 USE_PRODUCTION = True  # Set to True for Production API, False for Sandbox API
-VERBOSE = True  # Set to True to enable verbose output
 
 if USE_PRODUCTION:
     EBAY_APP_ID = os.getenv("EBAY_PROD_APP_ID")
@@ -22,53 +19,37 @@ else:
     EBAY_AUTH_URL = os.getenv("EBAY_SANDBOX_AUTH_URL")
     EBAY_ACCESS_TOKEN = os.getenv("EBAY_SANDBOX_ACCESS_TOKEN")
 
-# ✅ Use a consistent absolute path for cached images and JSON metadata
+# Use a consistent absolute path for the cache JSON
 CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "cached_images"))
 CACHE_JSON = os.path.join(CACHE_DIR, "image_cache.json")
 
-# Ensure cache directory exists
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-# ✅ Load existing cache or create a new one
 if os.path.exists(CACHE_JSON):
     with open(CACHE_JSON, "r") as f:
         image_cache = json.load(f)
 else:
     image_cache = {}
 
-def log(message):
-    """ Prints verbose messages only if VERBOSE is enabled. """
-    if VERBOSE:
-        print(message)
-
 def save_cache():
-    """ Saves the updated image cache to JSON. """
     with open(CACHE_JSON, "w") as f:
         json.dump(image_cache, f, indent=4)
 
 def get_cached_image(product_name):
-    """
-    Check if an image exists in cache.
-    Returns the eBay image URL if found, otherwise None.
-    """
+    """Return the cached eBay image URL if available."""
     if product_name in image_cache:
-        log(f"🖼️ Using cached image for '{product_name}': {image_cache[product_name]['ebay_url']}")
         return image_cache[product_name]["ebay_url"]
-
-    log(f"❌ No cached image found for '{product_name}'")
     return None
 
 def get_ebay_product_image(product_name):
     """
-    Fetch product image from eBay API and cache it if found.
-    Returns the eBay image URL if successful, otherwise None.
+    Query eBay for the product image.
+    Instead of downloading the image file, update the cache with the image URL only.
     """
-    # ✅ Check if image is cached
+    # Check cache first
     cached_image_url = get_cached_image(product_name)
     if cached_image_url:
         return cached_image_url
-
-    log(f"🔍 Searching eBay for images of: {product_name}")
 
     # Prepare API request
     params = {
@@ -78,7 +59,7 @@ def get_ebay_product_image(product_name):
         "RESPONSE-DATA-FORMAT": "JSON",
         "REST-PAYLOAD": "",
         "keywords": product_name,
-        "paginationInput.entriesPerPage": 5,  # Get up to 5 results
+        "paginationInput.entriesPerPage": 5,
         "outputSelector": "PictureURLLarge"
     }
 
@@ -98,54 +79,34 @@ def get_ebay_product_image(product_name):
         items = data.get("findItemsByKeywordsResponse", [])[0].get("searchResult", [])[0].get("item", [])
 
         if not items:
-            log(f"❌ No items found for '{product_name}'.")
             return None
 
-        # Find the first valid image
-        for item in items[:5]:  # Only check first 5 results
+        # Process the first valid image URL
+        for item in items[:5]:
             image_url = item.get("galleryURL")
             if isinstance(image_url, list):
-                image_url = image_url[0]  # Take first image if multiple are returned
+                image_url = image_url[0]
 
             if image_url and isinstance(image_url, str):
-                # ✅ Modify the URL to request a higher resolution image
-                if "s-l140" in image_url:  # If it's a small thumbnail
-                    high_res_url = image_url.replace("s-l140", "s-l1200")  # Increase size to 500px
+                # Modify the URL for higher resolution
+                if "s-l140" in image_url:
+                    high_res_url = image_url.replace("s-l140", "s-l1200")
                 elif "s-l225" in image_url:
                     high_res_url = image_url.replace("s-l225", "s-l1200")
                 elif "s-l400" in image_url:
                     high_res_url = image_url.replace("s-l400", "s-l1200")
                 else:
-                    high_res_url = image_url  # Fallback to the original URL
+                    high_res_url = image_url
 
-                # ✅ Store both eBay URL and downloaded image
-                ext = high_res_url.split(".")[-1].lower()
-                if ext not in ["jpg", "jpeg", "png", "gif", "webp"]:
-                    ext = "jpg"  # Default to jpg if unknown
-                
-                safe_filename = product_name.replace(" ", "_").lower()
-                save_path = os.path.join(CACHE_DIR, f"{safe_filename}.{ext}")
+                # Instead of saving the image locally, update the cache with the URL only.
+                image_cache[product_name] = {
+                    "ebay_url": high_res_url,
+                    "local_path": None
+                }
+                save_cache()
+                return high_res_url
 
-                # Download and save image
-                img_response = requests.get(high_res_url, stream=True)
-                if img_response.status_code == 200:
-                    with open(save_path, "wb") as img_file:
-                        for chunk in img_response.iter_content(1024):
-                            img_file.write(chunk)
-
-                    # ✅ Update cache
-                    image_cache[product_name] = {
-                        "ebay_url": high_res_url,
-                        "local_path": save_path
-                    }
-                    save_cache()
-
-                    log(f"✅ Cached new image for '{product_name}' -> eBay URL: {high_res_url}")
-                    return high_res_url  # ✅ Always return the modified eBay URL
-
-        log(f"❌ No valid images found for '{product_name}'.")
         return None
 
-    except requests.exceptions.RequestException as e:
-        log(f"🚨 eBay API request failed for '{product_name}': {e}")
+    except requests.exceptions.RequestException:
         return None
