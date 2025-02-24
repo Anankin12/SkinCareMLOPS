@@ -2,6 +2,7 @@
 sephora-products-and-skincare-reviews/
 myvenv/
 __pycache__/
+testing/
 
 *.csv
 notebooks/*.csv
