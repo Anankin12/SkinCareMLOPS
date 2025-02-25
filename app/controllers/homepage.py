@@ -6,9 +6,7 @@ Then, it asks for hair and eye color before switching to
 the recommendation page.
 """
 
-
 import streamlit as st
-
 
 def homepage():
     """
@@ -17,7 +15,6 @@ def homepage():
     Then, it asks for hair and eye color before switching to the
     recommendation page.
     """
-    st.set_page_config(page_title="Find Your Skincare Product", layout="wide")
 
     st.markdown(
         """
@@ -30,7 +27,7 @@ def homepage():
             border: 2px solid #ddd;
         }
         </style>
-    """,
+        """,
         unsafe_allow_html=True,
     )
 
@@ -46,7 +43,6 @@ def homepage():
         st.session_state.selected_category = None
 
     col1, col2, col3 = st.columns(3)
-
     with col1:
         if st.button(categories["Cosmetics"], key="cosmetics"):
             st.session_state.selected_category = "Cosmetics"
@@ -58,11 +54,10 @@ def homepage():
             st.session_state.selected_category = "Random"
 
     if not st.session_state.selected_category:
-        st.stop()  # Wait until category is selected
+        st.stop()
 
     # **Step 2: Select Principal Component**
     st.markdown("### Select Principal Component")
-
     if "selected_component" not in st.session_state:
         st.session_state.selected_component = None
 
@@ -75,11 +70,10 @@ def homepage():
             st.session_state.selected_component = "Silicone"
 
     if not st.session_state.selected_component:
-        st.stop()  # Wait until component is selected
+        st.stop()
 
     # **Step 3: Select Skin Type**
     st.markdown("### Select Skin Type")
-
     skin_types = {
         "Dry": "🧴 Dry",
         "Normal": "💧 Normal",
@@ -92,7 +86,6 @@ def homepage():
 
     col1, col2 = st.columns(2)
     col3, col4 = st.columns(2)
-
     with col1:
         if st.button(skin_types["Dry"], key="dry"):
             st.session_state.selected_skin_type = "Dry"
@@ -107,11 +100,10 @@ def homepage():
             st.session_state.selected_skin_type = "Combination"
 
     if not st.session_state.selected_skin_type:
-        st.stop()  # Wait until skin type is selected
+        st.stop()
 
     # Step 4: Select Skin Tone
     st.markdown("### Select Skin Tone")
-
     skin_tones = ["Light", "Fair", "Unknown", "Tan", "Light Medium"]
 
     if "selected_skin_tone" not in st.session_state:
@@ -120,9 +112,6 @@ def homepage():
     selected_tone = st.radio("Choose your skin tone:", skin_tones, horizontal=True)
     st.session_state.selected_skin_tone = selected_tone
 
-    # Step 5: Select Eye Color
-    st.markdown("### Select Eye Color")
-
     # Step 7: Number of Recommendations
     st.markdown("### Number of Recommendations")
     st.session_state.num_recommendations = st.slider(
@@ -130,10 +119,13 @@ def homepage():
     )
 
     # Step 8: Show Final Selection & Proceed
-    if st.button("Get Recommendations", key="recommend"):
-        st.switch_page("pages/recommendation.py")
+    def goto_recommendation_callback():
+        st.session_state.page = "recommendation"
+        st.session_state.do_rerun = True  # set a flag to trigger rerun
 
+    st.button("Get Recommendations", key="recommend", on_click=goto_recommendation_callback)
 
-# Main execution
-if __name__ == "__main__":
-    homepage()
+# Instead, at the end of the script, check if a rerun is requested:
+if st.session_state.get("do_rerun", False):
+    del st.session_state["do_rerun"]
+    st.rerun()
