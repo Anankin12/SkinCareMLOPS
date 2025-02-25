@@ -1,3 +1,12 @@
+"""
+This is the module for the homepage of the web app.
+It takes in user input for product category, principal component,
+skin type, and skin tone (saved in session state).
+Then, it asks for hair and eye color before switching to
+the recommendation page.
+"""
+
+
 import streamlit as st
 
 
@@ -27,9 +36,11 @@ def homepage():
 
     # **Step 1: Select Product Category**
     st.markdown("### Select Product Category")
-    categories = {"Cosmetics": "💄 Cosmetics",
-                  "Eye Care": "👁 Eye Care",
-                  "Random": "🎁 Random"}
+    categories = {
+        "Cosmetics": "💄 Cosmetics",
+        "Eye Care": "👁 Eye Care",
+        "Random": "🎁 Random",
+    }
 
     if "selected_category" not in st.session_state:
         st.session_state.selected_category = None
@@ -98,7 +109,7 @@ def homepage():
     if not st.session_state.selected_skin_type:
         st.stop()  # Wait until skin type is selected
 
-    # **Step 4: Select Skin Tone**
+    # Step 4: Select Skin Tone
     st.markdown("### Select Skin Tone")
 
     skin_tones = ["Light", "Fair", "Unknown", "Tan", "Light Medium"]
@@ -106,32 +117,19 @@ def homepage():
     if "selected_skin_tone" not in st.session_state:
         st.session_state.selected_skin_tone = None
 
-    selected_tone = st.radio("Choose your skin tone:", skin_tones,
-                             horizontal=True)
+    selected_tone = st.radio("Choose your skin tone:", skin_tones, horizontal=True)
     st.session_state.selected_skin_tone = selected_tone
 
-    # # **Step 5: Select Hair Color**
-    # st.markdown("### Select Hair Color")
-
-    # hair_colors = ["Dark", "Light", "Red"]
-    # selected_hair_color = st.radio("Choose your hair color:",
-    #                                hair_colors, horizontal=True)
-
-    # **Step 6: Select Eye Color**
+    # Step 5: Select Eye Color
     st.markdown("### Select Eye Color")
 
-    # eye_colors = ["Light", "Dark"]
-    # selected_eye_color = st.radio("Choose your eye color:", eye_colors,
-    #                               horizontal=True)
-
-    # **Step 7: Number of Recommendations**
+    # Step 7: Number of Recommendations
     st.markdown("### Number of Recommendations")
     st.session_state.num_recommendations = st.slider(
         "Select how many recommendations you want:", 1, 10, 5
-        )
+    )
 
-    # **Step 8: Show Final Selection & Proceed**
-    # Switch to recommendation page
+    # Step 8: Show Final Selection & Proceed
     if st.button("Get Recommendations", key="recommend"):
         st.switch_page("pages/recommendation.py")
 
