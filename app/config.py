@@ -15,7 +15,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 # Directories
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR.parent / "data"
-CACHE_DIR = BASE_DIR / "pages" / "cached_images"
+CACHE_DIR = BASE_DIR / "src" / "image_fetching" / "cached_images"
 
 # Streamlit Page Configuration
 PAGE_CONFIG = {
