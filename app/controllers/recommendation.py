@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import pandas as pd
 import streamlit as st
+from src.image_fetching.fetcher import fetch_product_image
 
 # Adjust these if you move them out of `src/`:
 from config import DATA_DIR, CACHE_DIR
