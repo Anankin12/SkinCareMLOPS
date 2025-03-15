@@ -69,7 +69,14 @@ def recommendation_page():
     index = st.session_state.current_index
     if index >= len(recommendations):
         st.success("🎉 You've seen all recommendations!")
+        
+        def back_home_action():
+            st.session_state.page = "homepage"
+            st.session_state.do_rerun = True
+        
+        st.button("🔙 Back to Home", key="back_home", on_click=back_home_action)
         return
+
 
     row = recommendations.iloc[index]
     product_name = row["product_name"]
