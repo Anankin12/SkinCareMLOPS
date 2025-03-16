@@ -1,23 +1,24 @@
-# Use the same base image as in the testing setup devcontainer.json
-FROM mcr.microsoft.com/devcontainers/python:1-3.11-bullseye
+# Use a base image with Python 3.12.3 (Bullseye variant)
+FROM mcr.microsoft.com/devcontainers/python:1-3.12-bullseye
 
-# Set the working directory inside the container
+# Set the working directory to /workspace (repository root inside container)
 WORKDIR /workspace
 
-# Copy dependency files for caching
-COPY requirements.txt ./
+# Copy only the necessary directories:
+# 1. The 'app' directory (includes main.py, requirements.txt, etc.)
+# 2. The 'data/processed' directory (where your CSV files reside)
+COPY app /workspace/app
+COPY data/processed /workspace/data/processed
 
-# Run package updates and install dependencies
-RUN if [ -f requirements.txt ]; then \
-      pip install --no-cache-dir -r requirements.txt; \
-    fi && \
-    pip install streamlit
+# Set the working directory to the app folder where main.py is located.
+WORKDIR /workspace/app
 
-# Copy the rest of your application code
-COPY . .
+# Install Python dependencies using the requirements file from app/
+RUN python -m pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# Expose the port on which your app will run
+# Expose the port for the Streamlit app
 EXPOSE 8501
 
-# Run the Streamlit app in headless mode (prevents email prompt)
-CMD ["streamlit", "run", "--server.headless", "true", "homepage.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false"]
+# Run the Streamlit app in headless mode.
+CMD ["streamlit", "run", "--server.headless", "true", "main.py", "--server.enableCORS", "false", "--server.enableXsrfProtection", "false"]
