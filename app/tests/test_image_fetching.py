@@ -1,11 +1,12 @@
 import sys
 import os
+import requests
+import pytest
+from src.image_fetching.google_search import fetch_google_image
+
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import pytest
-import requests
-from src.image_fetching.google_search import fetch_google_image
 
 # A fake response for a successful Google API call.
 class FakeSuccessResponse:
