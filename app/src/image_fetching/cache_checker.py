@@ -1,18 +1,18 @@
 import json
-import os
-from config import CACHE_DIR
+from config import CACHE_JSON
 
-CACHE_JSON = os.path.join(CACHE_DIR, "image_cache.json")
+def get_cached_image(product_name: str) -> str:
+    """
+    Return the cached image URL for the given product if available.
+    Uses the key "ebay_url" from the cache structure.
+    """
+    if not CACHE_JSON.exists():
+        return None
+    try:
+        with open(CACHE_JSON, "r") as f:
+            image_cache = json.load(f)
+    except json.JSONDecodeError:
+        image_cache = {}
 
-# Ensure CACHE_DIR exists
-os.makedirs(CACHE_DIR, exist_ok=True)
-
-if os.path.exists(CACHE_JSON):
-    with open(CACHE_JSON, "r") as f:
-        image_cache = json.load(f)
-else:
-    image_cache = {}
-
-def get_cached_image(product_name):
-    """Return the cached image URL if available."""
-    return image_cache.get(product_name, {}).get("image_url", None)
+    product_entry = image_cache.get(product_name, {})
+    return product_entry.get("ebay_url")

@@ -1,21 +1,18 @@
-import os
-from pathlib import Path
+"""
+This module contains the Streamlit app for the recommendation page.
+"""
+# import os
+# from pathlib import Path
 import pandas as pd
 import streamlit as st
-from src.image_fetching.fetcher import fetch_product_image
 
-# Adjust these if you move them out of `src/`:
-from config import DATA_DIR, CACHE_DIR
+from config import DATA_DIR
+
 from src.inference import recommendation_engine
-from src.images_fetcher import ImageFetcher
-from src.ebay_image_fetcher import (
-    get_cached_image,
-    get_ebay_product_image,
-    image_cache,
-    save_cache,
-)
-
-CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "cached_images"))
+from src.image_fetching.fetcher import fetch_product_image
+from src.buttons.back_home import back_home_action
+from src.buttons.like import like_action
+from src.buttons.dislike import dislike_action
 
 @st.cache_data
 def load_data():
@@ -61,6 +58,7 @@ def recommendation_page():
 
     if recommendations.empty:
         st.warning("No matching products found.")
+        st.button("🔙 Back to Home", key="back_home", on_click=back_home_action)
         return
 
     if "current_index" not in st.session_state:
@@ -69,11 +67,6 @@ def recommendation_page():
     index = st.session_state.current_index
     if index >= len(recommendations):
         st.success("🎉 You've seen all recommendations!")
-        
-        def back_home_action():
-            st.session_state.page = "homepage"
-            st.session_state.do_rerun = True
-        
         st.button("🔙 Back to Home", key="back_home", on_click=back_home_action)
         return
 
@@ -81,40 +74,16 @@ def recommendation_page():
     row = recommendations.iloc[index]
     product_name = row["product_name"]
 
-    os.makedirs(CACHE_DIR, exist_ok=True)
-
-    # --- Image fetching logic ---
-    image_url = get_cached_image(product_name)
-    if not image_url:
-        image_url = get_ebay_product_image(product_name)
-    if not image_url:
-        image_fetcher = ImageFetcher(product_name)
-        image_url = image_fetcher.google_search()
-        if image_url:
-            image_cache[product_name] = {"ebay_url": image_url, "local_path": None}
-            save_cache()
+    image_url = fetch_product_image(product_name)
 
     st.subheader(product_name)
     st.write(f"**Brand:** {row['brand_name']}")
     st.write(f"💰 **Price:** {row['price_usd']}")
 
     if image_url:
-        st.image(image_url, caption=product_name, use_container_width=True)
+        st.image(image_url, caption=product_name, use_container_width=False)
     else:
         st.warning("No image available.")
-
-    # Define callback functions that only update state and set a flag.
-    def like_action():
-        st.session_state.current_index += 1
-        st.session_state.do_rerun = True
-
-    def dislike_action():
-        st.session_state.current_index += 1
-        st.session_state.do_rerun = True
-
-    def back_home_action():
-        st.session_state.page = "homepage"
-        st.session_state.do_rerun = True
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
