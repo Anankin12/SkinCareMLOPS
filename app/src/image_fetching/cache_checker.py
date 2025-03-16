@@ -1,5 +1,9 @@
+"""
+Module to check the cache for a given product name.
+"""
 import json
 from config import CACHE_JSON
+
 
 def get_cached_image(product_name: str) -> str:
     """
@@ -9,7 +13,7 @@ def get_cached_image(product_name: str) -> str:
     if not CACHE_JSON.exists():
         return None
     try:
-        with open(CACHE_JSON, "r") as f:
+        with open(CACHE_JSON, "r", encoding="utf-8") as f:
             image_cache = json.load(f)
     except json.JSONDecodeError:
         image_cache = {}

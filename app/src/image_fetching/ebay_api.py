@@ -1,5 +1,9 @@
+"""
+Module to fetch product images from eBay.
+"""
 import requests
 from config import EBAY_APP_ID, EBAY_API_URL, EBAY_ACCESS_TOKEN
+
 
 def fetch_ebay_image(product_name: str) -> str:
     """
@@ -29,7 +33,7 @@ def fetch_ebay_image(product_name: str) -> str:
         response.raise_for_status()
         data = response.json()
 
-        items = data.get("findItemsByKeywordsResponse", [])[0].get("searchResult", [])[0].get("item", [])
+        items = data.get("findItemsByKeywordsResponse",[])[0].get("searchResult",[])[0].get("item",[])
         if not items:
             return None
 

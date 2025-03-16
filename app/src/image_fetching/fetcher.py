@@ -1,3 +1,7 @@
+"""
+Module to fetch product images by checking the cache first, t
+hen eBay, and finally Google.
+"""
 from .cache_checker import get_cached_image
 from .ebay_api import fetch_ebay_image
 from .google_search import fetch_google_image

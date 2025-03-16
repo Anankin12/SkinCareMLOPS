@@ -1,5 +1,9 @@
+"""
+This module contains the function to save the image URL to the cache JSON file.
+"""
 import json
 from config import CACHE_JSON
+
 
 def save_to_cache(product_name: str, image_url: str):
     """
@@ -8,7 +12,7 @@ def save_to_cache(product_name: str, image_url: str):
     """
     try:
         if CACHE_JSON.exists():
-            with open(CACHE_JSON, "r") as f:
+            with open(CACHE_JSON, "r", encoding="utf-8") as f:
                 image_cache = json.load(f)
         else:
             image_cache = {}
@@ -17,5 +21,5 @@ def save_to_cache(product_name: str, image_url: str):
 
     image_cache[product_name] = {"ebay_url": image_url, "local_path": None}
 
-    with open(CACHE_JSON, "w") as f:
+    with open(CACHE_JSON, "w", encoding="utf-8") as f:
         json.dump(image_cache, f, indent=4)

@@ -18,16 +18,17 @@ if USE_PRODUCTION:
     EBAY_AUTH_URL = os.getenv("EBAY_PROD_AUTH_URL")
     EBAY_ACCESS_TOKEN = os.getenv("EBAY_PROD_ACCESS_TOKEN")
     GOOGLE_SEARCH_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY")
-    GOOGLE_SEARCH_CSE_ID=os.getenv("GOOGLE_SEARCH_CSE_ID")
+    GOOGLE_SEARCH_CSE_ID = os.getenv("GOOGLE_SEARCH_CSE_ID")
 else:
     EBAY_APP_ID = os.getenv("EBAY_SANDBOX_APP_ID")
     EBAY_API_URL = os.getenv("EBAY_SANDBOX_API_URL")
     EBAY_AUTH_URL = os.getenv("EBAY_SANDBOX_AUTH_URL")
     EBAY_ACCESS_TOKEN = os.getenv("EBAY_SANDBOX_ACCESS_TOKEN")
     GOOGLE_SEARCH_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY")
-    GOOGLE_SEARCH_CSE_ID=os.getenv("GOOGLE_SEARCH_CSE_ID")
+    GOOGLE_SEARCH_CSE_ID = os.getenv("GOOGLE_SEARCH_CSE_ID")
 
-# Optional: if using Google Custom Search, you’ll likely need a Search Engine ID.
+# Optional: if using Google Custom Search, you’ll likely need a
+# Search Engine ID.
 GOOGLE_SEARCH_ENGINE_ID = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
 
 # Directories

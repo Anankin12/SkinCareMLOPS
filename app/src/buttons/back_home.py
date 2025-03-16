@@ -6,5 +6,8 @@ which is used to navigate back to the homepage.
 import streamlit as st
 
 def back_home_action():
+    """
+    Function to navigate back to the homepage.
+    """
     st.session_state.page = "homepage"
     st.session_state.do_rerun = True

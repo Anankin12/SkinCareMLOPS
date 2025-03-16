@@ -8,6 +8,7 @@ the recommendation page.
 
 import streamlit as st
 
+
 def homepage():
     """
     Homepage for the web app: it takes in user input for product category,
@@ -109,7 +110,8 @@ def homepage():
     if "selected_skin_tone" not in st.session_state:
         st.session_state.selected_skin_tone = None
 
-    selected_tone = st.radio("Choose your skin tone:", skin_tones, horizontal=True)
+    selected_tone = st.radio("Choose your skin tone:",
+                             skin_tones, horizontal=True)
     st.session_state.selected_skin_tone = selected_tone
 
     # Step 7: Number of Recommendations
@@ -123,7 +125,9 @@ def homepage():
         st.session_state.page = "recommendation"
         st.session_state.do_rerun = True  # set a flag to trigger rerun
 
-    st.button("Get Recommendations", key="recommend", on_click=goto_recommendation_callback)
+    st.button("Get Recommendations", key="recommend",
+              on_click=goto_recommendation_callback)
+
 
 # Instead, at the end of the script, check if a rerun is requested:
 if st.session_state.get("do_rerun", False):

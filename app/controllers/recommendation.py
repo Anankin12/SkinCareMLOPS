@@ -1,8 +1,7 @@
 """
 This module contains the Streamlit app for the recommendation page.
 """
-# import os
-# from pathlib import Path
+
 import pandas as pd
 import streamlit as st
 
@@ -14,6 +13,7 @@ from src.buttons.back_home import back_home_action
 from src.buttons.like import like_action
 from src.buttons.dislike import dislike_action
 
+
 @st.cache_data
 def load_data():
     """
@@ -21,6 +21,7 @@ def load_data():
     """
     csv_path = DATA_DIR / "processed" / "cleaned_data.csv"
     return pd.read_csv(csv_path, sep=";")
+
 
 def recommendation_page():
     """
@@ -69,7 +70,6 @@ def recommendation_page():
         st.success("🎉 You've seen all recommendations!")
         st.button("🔙 Back to Home", key="back_home", on_click=back_home_action)
         return
-
 
     row = recommendations.iloc[index]
     product_name = row["product_name"]
