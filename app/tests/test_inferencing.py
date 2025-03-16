@@ -27,7 +27,7 @@ def test_recommendations_match():
     Test that the recommendation function returns matching products when there is a match.
     """
     df = create_dummy_df()
-    engine = recommendation_engine(df)
+    engine = RecommendationEngine(df)
     # Use parameters that should match at least the first row:
     # secondary_category "Cosmetics", ingredient_preference "Water", skin tone "Light", skin type "Normal"
     result = engine.recommendation_function("Cosmetics", "Water", "Light", "Normal", n_recommendations=5)
@@ -48,7 +48,7 @@ def test_recommendations_no_match():
     Test that the recommendation function returns an empty DataFrame when no products match.
     """
     df = create_dummy_df()
-    engine = recommendation_engine(df)
+    engine = RecommendationEngine(df)
     # Use parameters that are unlikely to match any row.
     result = engine.recommendation_function("Skincare", "Water", "Dark", "Dry", n_recommendations=5)
     
@@ -69,7 +69,7 @@ def test_recommendation_limit():
         "rating": [4.0, 5.0]
     }
     df = pd.DataFrame(data)
-    engine = recommendation_engine(df)
+    engine = RecommendationEngine(df)
     
     # Request only 1 recommendation.
     result = engine.recommendation_function("Cosmetics", "Water", "Light", "Normal", n_recommendations=1)
