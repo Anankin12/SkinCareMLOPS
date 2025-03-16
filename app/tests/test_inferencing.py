@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import pandas as pd
 import pytest
-from src.inference import recommendation_engine
+from src.inference import RecommendationEngine
 
 def create_dummy_df():
     # Create a DataFrame with the necessary columns.
