@@ -6,12 +6,12 @@ import os
 from types import SimpleNamespace
 import pytest
 import streamlit as st
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from src.buttons.back_home import back_home_action
 from src.buttons.like import like_action
 from src.buttons.dislike import dislike_action
-
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def test_back_home_action(monkeypatch):
